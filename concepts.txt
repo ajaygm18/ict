@@ -1,0 +1,139 @@
+🔹 Core ICT Concepts
+
+Market Structure (HH, HL, LH, LL)
+
+Liquidity (buy-side & sell-side)
+
+Liquidity Pools (equal highs/lows, trendline liquidity)
+
+Order Blocks (Bullish & Bearish)
+
+Breaker Blocks
+
+Fair Value Gaps (FVG) / Imbalances
+
+Rejection Blocks
+
+Mitigation Blocks
+
+Supply & Demand Zones
+
+Premium & Discount (Optimal Trade Entry - OTE)
+
+Dealing Ranges
+
+Swing Highs & Swing Lows
+
+Market Maker Buy & Sell Models
+
+Market Maker Sell Programs & Buy Programs
+
+Judas Swing (false breakout at sessions open)
+
+Turtle Soup (stop-hunt strategy)
+
+Power of 3 (Accumulation – Manipulation – Distribution)
+
+Optimal Trade Entry (retracement into 62%-79% zone)
+
+SMT Divergence (Smart Money Divergence across correlated pairs)
+
+Liquidity Voids / Inefficiencies
+
+🔹 Time & Price Theory
+
+Killzones (London Open, New York Open, London Close, Asia Range)
+
+Midnight Open / Session Opens (00:00, 8:30, 9:30, 13:30, etc.)
+
+Equilibrium & Fibonacci Ratios (50%, 62%, 70.5%, 79%)
+
+Daily & Weekly Range Expectations
+
+Session Liquidity Raids
+
+Weekly Profiles (Weekly Open, High, Low, Close = WHLC)
+
+Daily Bias (using daily open, previous day’s high/low)
+
+Weekly Bias (using weekly OHLC)
+
+Monthly Bias (using monthly OHLC)
+
+Time of Day Highs & Lows (AM/PM session separation)
+
+🔹 Risk Management & Execution
+
+Trade Journaling & Backtesting
+
+Entry Models (FVG entry, OB entry, Breaker entry)
+
+Exit Models (partial TP, full TP, scaling out)
+
+Risk-to-Reward (RRR) optimization
+
+Position Sizing
+
+Drawdown Control
+
+Compounding Models
+
+Daily Loss Limits
+
+Probability Profiles (A+, B, C setups)
+
+🔹 Advanced Concepts
+
+High Probability Trade Scenarios (HTF bias + LTF confirmation)
+
+Liquidity Runs (stop hunts, inducement, fakeouts)
+
+Reversals vs. Continuations
+
+Accumulation & Distribution Schematics
+
+Order Flow (institutional narrative)
+
+High/Low of the Day Identification
+
+Range Expansion (daily/weekly breakouts)
+
+Inside Day / Outside Day concepts
+
+Weekly Profiles (expansion, consolidation, reversal)
+
+Interbank Price Delivery Algorithm (IPDA) theory
+
+Algo-based Price Delivery (ICT’s model of market manipulation)
+
+🔹 Strategies / Playbooks
+
+ICT Silver Bullet (15-min window after NY Open)
+
+ICT Asian Range Breakout Strategy
+
+ICT New York Reversal
+
+ICT London Killzone Strategy
+
+ICT Fair Value Gap (FVG) Sniper Entry
+
+ICT Order Block Strategy
+
+ICT Breaker Block Strategy
+
+ICT Rejection Block Strategy
+
+ICT SMT Divergence Strategy
+
+ICT Turtle Soup (liquidity raid reversal)
+
+ICT Power of 3 Model (accumulation–manipulation–distribution)
+
+ICT Daily Bias + Liquidity Raid Strategy
+
+ICT AM Session Bias Strategy
+
+ICT PM Session Reversal Strategy
+
+ICT Optimal Trade Entry Strategy
