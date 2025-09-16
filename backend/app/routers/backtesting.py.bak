@@ -46,8 +46,6 @@ class BacktestEngine:
         self.risk_per_trade = risk_per_trade
         self.trades = []
         self.equity_curve = []
-        self.winning_trades = 0
-        self.losing_trades = 0
         
     def run_backtest(self, agent: ICTTradingAgent, symbol: str, strategy: str, 
                     start_date: str, end_date: str, timeframe: str = "1h") -> Dict:
@@ -61,16 +59,27 @@ class BacktestEngine:
             start_dt = pd.to_datetime(start_date)
             end_dt = pd.to_datetime(end_date)
             
-            # For demo purposes, just use all available data
-            # Skip date filtering for now to avoid timezone issues
-            if len(data) == 0:
-                raise Exception("No market data available")
+            # Filter data by date range
+            mask = (data.index >= start_dt) & (data.index <= end_dt)
+            data = data.loc[mask]
+            
+            if data.empty:
+                # If no data in range, use last 30 days for demo
+                data = data.tail(30)
             
             # Generate signals for the entire period
             signals = agent.generate_signals(symbol, strategy)
             
-            # For demo purposes, just use the first 15 signals regardless of date range
-            filtered_signals = signals[:15] if signals else []
+            # Filter signals to the date range if possible
+            filtered_signals = []
+            for signal in signals:
+                signal_date = pd.to_datetime(signal.timestamp)
+                if start_dt <= signal_date <= end_dt:
+                    filtered_signals.append(signal)
+            
+            # If no signals in range, use recent signals for demo
+            if not filtered_signals:
+                filtered_signals = signals[:10]  # Use first 10 signals for demo
             
             # Execute trades based on signals
             self._execute_trades(data, filtered_signals)
@@ -141,12 +150,63 @@ class BacktestEngine:
                 
             except Exception as e:
                 continue
+                                break
+                            elif row['High'] >= signal.take_profit:
+                                exit_price = signal.take_profit
+                                exit_reason = "take_profit"
+                                break
+                        elif signal.signal_type == "SELL":
+                            if row['High'] >= signal.stop_loss:
+                                exit_price = signal.stop_loss
+                                exit_reason = "stop_loss"
+                                break
+                            elif row['Low'] <= signal.take_profit:
+                                exit_price = signal.take_profit
+                                exit_reason = "take_profit"
+                                break
+                    
+                    # If no exit condition met, use close price of last available data
+                    if exit_price is None:
+                        exit_price = future_data['Close'].iloc[-1]
+                        exit_reason = "time_exit"
+                    
+                    # Calculate trade result
+                    if signal.signal_type == "BUY":
+                        pnl = (exit_price - entry_price) * position_size
+                    else:
+                        pnl = (entry_price - exit_price) * position_size
+                    
+                    # Update capital
+                    self.current_capital += pnl
+                    
+                    # Record trade
+                    trade = {
+                        "entry_time": signal.timestamp,
+                        "exit_time": future_data.index[0] if len(future_data) > 0 else signal.timestamp,
+                        "symbol": signal.symbol,
+                        "signal_type": signal.signal_type,
+                        "entry_price": entry_price,
+                        "exit_price": exit_price,
+                        "position_size": position_size,
+                        "pnl": pnl,
+                        "exit_reason": exit_reason,
+                        "strategy": signal.strategy
+                    }
+                    
+                    self.trades.append(trade)
+                    
+                    # Record equity point
+                    self.equity_curve.append({
+                        "timestamp": trade["exit_time"],
+                        "equity": self.current_capital
+                    })
+                    
+            except Exception as e:
+                continue  # Skip problematic trades
     
     def _calculate_metrics(self) -> Dict:
         """Calculate backtest performance metrics"""
-        total_trades = len(self.trades)
-        
-        if total_trades == 0:
+        if not self.trades:
             return {
                 "total_trades": 0,
                 "winning_trades": 0,
@@ -156,51 +216,50 @@ class BacktestEngine:
                 "max_drawdown": 0.0,
                 "sharpe_ratio": 0.0,
                 "profit_factor": 0.0,
-                "final_capital": self.initial_capital,
+                "final_capital": self.current_capital,
                 "trades": [],
-                "equity_curve": []
+                "equity_curve": self.equity_curve
             }
         
-        # Calculate metrics
-        win_rate = (self.winning_trades / total_trades) * 100 if total_trades > 0 else 0
+        # Basic metrics
+        total_trades = len(self.trades)
+        winning_trades = len([t for t in self.trades if t['pnl'] > 0])
+        losing_trades = len([t for t in self.trades if t['pnl'] < 0])
+        win_rate = (winning_trades / total_trades) * 100 if total_trades > 0 else 0
+        
+        # Return calculation
         total_return = ((self.current_capital - self.initial_capital) / self.initial_capital) * 100
         
-        # Calculate max drawdown
-        equity_values = [point['equity'] for point in self.equity_curve]
-        peak = equity_values[0]
-        max_dd = 0
+        # Max drawdown calculation
+        peak = self.initial_capital
+        max_drawdown = 0.0
         
-        for equity in equity_values:
-            if equity > peak:
-                peak = equity
-            dd = (peak - equity) / peak
-            if dd > max_dd:
-                max_dd = dd
+        for equity_point in self.equity_curve:
+            if equity_point['equity'] > peak:
+                peak = equity_point['equity']
+            
+            drawdown = ((peak - equity_point['equity']) / peak) * 100
+            if drawdown > max_drawdown:
+                max_drawdown = drawdown
         
-        max_drawdown = max_dd * 100
+        # Profit factor
+        gross_profit = sum([t['pnl'] for t in self.trades if t['pnl'] > 0])
+        gross_loss = abs(sum([t['pnl'] for t in self.trades if t['pnl'] < 0]))
+        profit_factor = gross_profit / gross_loss if gross_loss > 0 else 0
         
-        # Calculate Sharpe ratio (simplified)
-        returns = []
-        for i in range(1, len(equity_values)):
-            ret = (equity_values[i] - equity_values[i-1]) / equity_values[i-1]
-            returns.append(ret)
-        
+        # Simplified Sharpe ratio (assuming risk-free rate = 0)
+        returns = [t['pnl'] / self.initial_capital for t in self.trades]
         if len(returns) > 1:
             avg_return = np.mean(returns)
-            std_return = np.std(returns)
-            sharpe_ratio = avg_return / std_return if std_return > 0 else 0
+            return_std = np.std(returns)
+            sharpe_ratio = (avg_return / return_std) * np.sqrt(252) if return_std > 0 else 0
         else:
             sharpe_ratio = 0
         
-        # Calculate profit factor
-        gross_profit = sum(trade['profit'] for trade in self.trades if trade['profit'] > 0)
-        gross_loss = abs(sum(trade['profit'] for trade in self.trades if trade['profit'] < 0))
-        profit_factor = gross_profit / gross_loss if gross_loss > 0 else 0
-        
         return {
             "total_trades": total_trades,
-            "winning_trades": self.winning_trades,
-            "losing_trades": self.losing_trades,
+            "winning_trades": winning_trades,
+            "losing_trades": losing_trades,
             "win_rate": win_rate,
             "total_return": total_return,
             "max_drawdown": max_drawdown,
@@ -210,6 +269,32 @@ class BacktestEngine:
             "trades": self.trades[-20:],  # Last 20 trades for display
             "equity_curve": self.equity_curve
         }
+
+@router.post("/run")
+async def run_backtest(
+    request: BacktestRequest,
+    agent: ICTTradingAgent = Depends(get_ict_agent)
+):
+    """Run a backtest for specified strategy and parameters"""
+    try:
+        engine = BacktestEngine(request.initial_capital, request.risk_per_trade)
+        results = engine.run_backtest(
+            agent=agent,
+            symbol=request.symbol,
+            strategy=request.strategy,
+            start_date=request.start_date,
+            end_date=request.end_date,
+            timeframe=request.timeframe
+        )
+        
+        return {
+            "request": request.dict(),
+            "results": results,
+            "status": "completed"
+        }
+        
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
 
 @router.get("/example")
 async def get_example_backtest():
@@ -231,43 +316,3 @@ async def get_example_backtest():
         },
         "status": "example"
     }
-
-@router.post("/run")
-async def run_backtest(
-    request: BacktestRequest,
-    agent: ICTTradingAgent = Depends(get_ict_agent)
-):
-    """Run a backtest for a strategy"""
-    try:
-        # Initialize backtest engine
-        engine = BacktestEngine(
-            initial_capital=request.initial_capital,
-            risk_per_trade=request.risk_per_trade
-        )
-        
-        # Run backtest
-        results = engine.run_backtest(
-            agent=agent,
-            symbol=request.symbol,
-            strategy=request.strategy,
-            start_date=request.start_date,
-            end_date=request.end_date,
-            timeframe=request.timeframe
-        )
-        
-        return {
-            "request": {
-                "symbol": request.symbol,
-                "strategy": request.strategy,
-                "start_date": request.start_date,
-                "end_date": request.end_date,
-                "initial_capital": request.initial_capital,
-                "risk_per_trade": request.risk_per_trade,
-                "timeframe": request.timeframe
-            },
-            "results": results,
-            "status": "completed"
-        }
-        
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))

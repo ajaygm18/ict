@@ -25,10 +25,10 @@ export default function BacktestingPage({ exampleResults }: BacktestPageProps) {
   const [isRunning, setIsRunning] = useState(false)
   const [results, setResults] = useState<BacktestResult | null>(null)
   const [formData, setFormData] = useState({
-    symbol: 'EURUSD',
+    symbol: 'AAPL',
     strategy: 'silver_bullet',
-    start_date: '2023-01-01',
-    end_date: '2023-12-31',
+    start_date: '2024-01-01',
+    end_date: '2024-12-31',
     initial_capital: 10000,
     risk_per_trade: 1.0,
     timeframe: '1h'

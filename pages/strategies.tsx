@@ -17,7 +17,7 @@ interface StrategiesPageProps {
 
 export default function StrategiesPage({ strategies }: StrategiesPageProps) {
   const [selectedStrategy, setSelectedStrategy] = useState('')
-  const [symbol, setSymbol] = useState('EURUSD')
+  const [symbol, setSymbol] = useState('AAPL')
   const [timeframe, setTimeframe] = useState('1h')
   const [signals, setSignals] = useState(null)
   const [loading, setLoading] = useState(false)
