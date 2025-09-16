@@ -1,0 +1,18 @@
+{
+    "total_strategies": 13,
+    "strategies": [
+        "silver_bullet",
+        "asian_breakout",
+        "ny_reversal",
+        "london_killzone",
+        "fvg_sniper",
+        "order_block",
+        "breaker_block",
+        "rejection_block",
+        "smt_divergence",
+        "turtle_soup",
+        "power_of_3",
+        "daily_bias",
+        "optimal_trade_entry"
+    ]
+}

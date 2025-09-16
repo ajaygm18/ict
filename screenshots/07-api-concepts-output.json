@@ -1,0 +1,90 @@
+{
+    "total_concepts": 17,
+    "concepts": [
+        {
+            "name": "Market Structure",
+            "description": "Analysis of HH, HL, LH, LL patterns",
+            "category": "Core"
+        },
+        {
+            "name": "Liquidity",
+            "description": "Identification of buy-side and sell-side liquidity",
+            "category": "Core"
+        },
+        {
+            "name": "Order Blocks",
+            "description": "Bullish and Bearish order block identification",
+            "category": "Core"
+        },
+        {
+            "name": "Fair Value Gaps (FVG)",
+            "description": "Price imbalances and inefficiencies",
+            "category": "Core"
+        },
+        {
+            "name": "Breaker Blocks",
+            "description": "Failed order blocks turned support/resistance",
+            "category": "Core"
+        },
+        {
+            "name": "Rejection Blocks",
+            "description": "Areas where price was rejected",
+            "category": "Core"
+        },
+        {
+            "name": "Optimal Trade Entry (OTE)",
+            "description": "62%-79% retracement zone",
+            "category": "Core"
+        },
+        {
+            "name": "SMT Divergence",
+            "description": "Smart Money Divergence across correlated pairs",
+            "category": "Core"
+        },
+        {
+            "name": "Power of 3",
+            "description": "Accumulation-Manipulation-Distribution model",
+            "category": "Advanced"
+        },
+        {
+            "name": "Judas Swing",
+            "description": "False breakout at session opens",
+            "category": "Advanced"
+        },
+        {
+            "name": "London Open Killzone",
+            "description": "8:00-10:00 London time high activity period",
+            "category": "Time & Price"
+        },
+        {
+            "name": "New York Open Killzone",
+            "description": "13:30-16:00 GMT high activity period",
+            "category": "Time & Price"
+        },
+        {
+            "name": "Asian Range",
+            "description": "Overnight consolidation period",
+            "category": "Time & Price"
+        },
+        {
+            "name": "Fibonacci Retracement",
+            "description": "Key retracement levels: 50%, 62%, 79%",
+            "category": "Time & Price"
+        },
+        {
+            "name": "Equilibrium",
+            "description": "50% level of price ranges",
+            "category": "Time & Price"
+        },
+        {
+            "name": "Position Sizing",
+            "description": "Risk-based position calculation",
+            "category": "Risk Management"
+        },
+        {
+            "name": "Risk-Reward Ratio",
+            "description": "Trade setup risk/reward optimization",
+            "category": "Risk Management"
+        }
+    ]
+}
