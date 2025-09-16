@@ -1,0 +1,17 @@
+{
+    "symbol": "EURUSD",
+    "strategy": "silver_bullet",
+    "period": "2023-01-01 to 2023-12-31",
+    "results": {
+        "total_trades": 156,
+        "winning_trades": 94,
+        "losing_trades": 62,
+        "win_rate": 60.26,
+        "total_return": 23.5,
+        "max_drawdown": 8.2,
+        "sharpe_ratio": 1.42,
+        "profit_factor": 1.85,
+        "final_capital": 12350.0
+    },
+    "status": "example"
+}
