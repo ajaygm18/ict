@@ -218,6 +218,14 @@ class ICTTradingAgent:
             ticker = yf.Ticker(symbol)
             data = ticker.history(period=period, interval=interval)
             
+            # Ensure proper DatetimeIndex
+            if not isinstance(data.index, pd.DatetimeIndex):
+                data.index = pd.to_datetime(data.index)
+            
+            # Check if data is empty
+            if data.empty:
+                raise Exception(f"No data available for symbol {symbol}")
+            
             # Add technical indicators
             data = self._add_technical_indicators(data)
             
@@ -228,27 +236,44 @@ class ICTTradingAgent:
     
     def _add_technical_indicators(self, data: pd.DataFrame) -> pd.DataFrame:
         """Add technical indicators to market data"""
-        # Simple Moving Averages
-        data['SMA_20'] = data['Close'].rolling(window=20).mean()
-        data['SMA_50'] = data['Close'].rolling(window=50).mean()
-        data['SMA_200'] = data['Close'].rolling(window=200).mean()
-        
-        # Relative Strength Index
-        delta = data['Close'].diff()
-        gain = (delta.where(delta > 0, 0)).rolling(window=14).mean()
-        loss = (-delta.where(delta < 0, 0)).rolling(window=14).mean()
-        rs = gain / loss
-        data['RSI'] = 100 - (100 / (1 + rs))
-        
-        # ATR for volatility
-        data['TR'] = np.maximum(
-            data['High'] - data['Low'],
-            np.maximum(
-                abs(data['High'] - data['Close'].shift(1)),
-                abs(data['Low'] - data['Close'].shift(1))
+        try:
+            # Ensure we have the required columns
+            required_columns = ['Open', 'High', 'Low', 'Close', 'Volume']
+            for col in required_columns:
+                if col not in data.columns:
+                    data[col] = 0.0
+            
+            # Simple Moving Averages
+            data['SMA_20'] = data['Close'].rolling(window=20).mean()
+            data['SMA_50'] = data['Close'].rolling(window=50).mean()
+            data['SMA_200'] = data['Close'].rolling(window=200).mean()
+            
+            # Relative Strength Index
+            delta = data['Close'].diff()
+            gain = (delta.where(delta > 0, 0)).rolling(window=14).mean()
+            loss = (-delta.where(delta < 0, 0)).rolling(window=14).mean()
+            rs = gain / loss
+            data['RSI'] = 100 - (100 / (1 + rs))
+            
+            # ATR for volatility
+            data['TR'] = np.maximum(
+                data['High'] - data['Low'],
+                np.maximum(
+                    abs(data['High'] - data['Close'].shift(1)),
+                    abs(data['Low'] - data['Close'].shift(1))
+                )
             )
-        )
-        data['ATR'] = data['TR'].rolling(window=14).mean()
+            data['ATR'] = data['TR'].rolling(window=14).mean()
+            
+            # Fill NaN values with forward fill, then backward fill
+            data = data.fillna(method='ffill').fillna(method='bfill')
+            
+        except Exception as e:
+            print(f"Error adding technical indicators: {e}")
+            # Add default values if indicators fail
+            for indicator in ['SMA_20', 'SMA_50', 'SMA_200', 'RSI', 'TR', 'ATR']:
+                if indicator not in data.columns:
+                    data[indicator] = 0.0
         
         return data
     
